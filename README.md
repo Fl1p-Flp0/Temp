@@ -51,6 +51,27 @@ To run a longer experiment after selecting a candidate gamma:
 .\run_r9_768b_gamma.ps1 -Frames 5000 -Gammas 4
 ```
 
+## Recommended System Comparison
+
+The primary system comparison is LDPC-only versus BCH one-pass. It uses the
+same 768 useful payload bits, the same 1120-bit transmitted frame length and
+the same AWGN samples per paired frame. Run three seeds with 5,000 frames per
+Eb/N0 point by default:
+
+```powershell
+.\run_r9_768b_onepass.ps1
+```
+
+For a shorter check before the long run:
+
+```powershell
+.\run_r9_768b_onepass.ps1 -Frames 500
+```
+
+The hard-decision 5+5 BCH-feedback mode remains exploratory. Do not use it
+as the hardware candidate unless a separate soft-information feedback model
+demonstrates a stable advantage over BCH one-pass.
+
 ## Outputs
 
 Each gamma directory in `results/` contains:
