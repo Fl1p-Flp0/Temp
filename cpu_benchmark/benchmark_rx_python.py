@@ -479,6 +479,9 @@ def main() -> None:
         raise RuntimeError("RX benchmark did not complete a timed repetition")
     accepted, rejected, wrong_accept, total_iterations, output_sha256 = reference_outcome
 
+    median_latency_us = statistics.median(latency_values)
+    raw_throughput_mbit_s = 768.0 / median_latency_us
+    accepted_goodput_mbit_s = raw_throughput_mbit_s * accepted / args.frames
     row: dict[str, object] = {
         "benchmark": "rx_python_fixed6_ldpc1120_840_bch840_800_t4_aes128",
         "implementation": "pure_python_fixed_point_rtl_matched",
@@ -493,11 +496,13 @@ def main() -> None:
         "warmup_frames_per_repetition": args.warmup,
         "repetitions": args.repetitions,
         "primary_latency_statistic": "median_of_repetition_averages",
-        "rx_latency_median_us_per_frame": f"{statistics.median(latency_values):.6f}",
+        "rx_latency_median_us_per_frame": f"{median_latency_us:.6f}",
         "rx_latency_mean_us_per_frame": f"{statistics.fmean(latency_values):.6f}",
         "rx_latency_stddev_us_per_frame": f"{statistics.pstdev(latency_values):.6f}",
         "rx_latency_min_us_per_frame": f"{min(latency_values):.6f}",
         "rx_latency_max_us_per_frame": f"{max(latency_values):.6f}",
+        "payload_throughput_mbit_s": f"{raw_throughput_mbit_s:.6f}",
+        "accepted_payload_goodput_mbit_s": f"{accepted_goodput_mbit_s:.6f}",
         "ldpc_avg_iterations": f"{total_iterations / args.frames:.6f}",
         "accepted_frames_per_repetition": accepted,
         "rejected_frames_per_repetition": rejected,
@@ -518,6 +523,7 @@ def main() -> None:
     print("PASS: CPU RX benchmark completed")
     print(f"scenario={row['scenario']} repetitions={args.repetitions} frames_per_repetition={args.frames} accepted={accepted} rejected={rejected} wrong_accept={wrong_accept}")
     print(f"RX primary latency (median) = {float(row['rx_latency_median_us_per_frame']):.3f} us/frame; LDPC average iterations = {float(row['ldpc_avg_iterations']):.3f}")
+    print(f"RX payload throughput = {float(row['payload_throughput_mbit_s']):.3f} Mbit/s; accepted goodput = {float(row['accepted_payload_goodput_mbit_s']):.3f} Mbit/s")
     print(f"RX mean +/- population stddev = {float(row['rx_latency_mean_us_per_frame']):.3f} +/- {float(row['rx_latency_stddev_us_per_frame']):.3f} us/frame")
     print(f"CSV={csv_path.resolve()}")
     print(f"RUNS_CSV={runs_csv_path.resolve()}")

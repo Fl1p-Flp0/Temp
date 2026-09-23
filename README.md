@@ -1,6 +1,8 @@
-# R9 BCH-Aided LDPC Simulation
+# Portable CPU Benchmark for AES-BCH-LDPC
 
-This repository is a portable software experiment for the R9 candidate:
+This repository includes a self-contained Python benchmark that can be cloned
+and measured directly on another host CPU. It measures one TX clean processing
+path plus RX clean and RX BPSK/AWGN signed-6-bit LLR processing paths.
 
 ```text
 768 application bits + 32 fixed zero bits
@@ -22,17 +24,31 @@ payload and the same standard-normal AWGN samples:
 The LDPC-only and BCH-LDPC systems both carry 768 useful bits in a 1120-bit
 frame, giving the same useful payload rate of `768 / 1120 = 0.685714`.
 
-## Requirements
+## CPU Benchmark
+
+The portable CPU package requires Python 3.9 or newer and no third-party
+package. Run all three measurements on Windows PowerShell with:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\cpu_benchmark\run_cpu_benchmarks.ps1
+```
+
+See [CPU_BENCHMARK.md](CPU_BENCHMARK.md) for methodology, outputs, and
+individual commands.
+
+## Legacy Simulation Requirements
 
 - Windows PowerShell 5.1 or PowerShell 7.
 - Python 3.9 or newer. The `py -3` launcher is preferred; `python` is also
   supported by the runner.
-- `matplotlib` for PNG plots.
+- `matplotlib` is only needed for the optional legacy plotting scripts; it is
+  not needed for `cpu_benchmark`.
 
 Install the Python dependency once:
 
 ```powershell
-py -3 -m pip install -r requirements.txt
+py -3 -m pip install matplotlib
 ```
 
 ## Gamma Pilot

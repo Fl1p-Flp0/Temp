@@ -268,6 +268,8 @@ def main() -> None:
         args.emit_codeword.parent.mkdir(parents=True, exist_ok=True)
         args.emit_codeword.write_text(encoder.encode_frame(base_payload).hex() + "\n", encoding="ascii")
 
+    median_latency_us = statistics.median(latency_values)
+    payload_throughput_mbit_s = 768.0 / median_latency_us
     row: dict[str, object] = {
         "benchmark": "tx_python_aes128_bch840_800_t4_ldpc1120_840",
         "implementation": "pure_python_rtl_matched_masks",
@@ -277,11 +279,12 @@ def main() -> None:
         "warmup_frames_per_repetition": args.warmup,
         "repetitions": args.repetitions,
         "primary_latency_statistic": "median_of_repetition_averages",
-        "tx_latency_median_us_per_frame": f"{statistics.median(latency_values):.6f}",
+        "tx_latency_median_us_per_frame": f"{median_latency_us:.6f}",
         "tx_latency_mean_us_per_frame": f"{statistics.fmean(latency_values):.6f}",
         "tx_latency_stddev_us_per_frame": f"{statistics.pstdev(latency_values):.6f}",
         "tx_latency_min_us_per_frame": f"{min(latency_values):.6f}",
         "tx_latency_max_us_per_frame": f"{max(latency_values):.6f}",
+        "payload_throughput_mbit_s": f"{payload_throughput_mbit_s:.6f}",
         "python": sys.version.split()[0],
         "machine": platform.machine(),
         "processor": platform.processor() or "unknown",
@@ -301,6 +304,7 @@ def main() -> None:
     print("PASS: CPU TX benchmark completed")
     print(f"repetitions={args.repetitions} frames_per_repetition={args.frames} payload_bits_per_frame=768 codeword_bits_per_frame=1120")
     print(f"TX primary latency (median) = {float(row['tx_latency_median_us_per_frame']):.3f} us/frame")
+    print(f"TX payload throughput = {float(row['payload_throughput_mbit_s']):.3f} Mbit/s")
     print(f"TX mean +/- population stddev = {float(row['tx_latency_mean_us_per_frame']):.3f} +/- {float(row['tx_latency_stddev_us_per_frame']):.3f} us/frame")
     print(f"CSV={csv_path.resolve()}")
     print(f"RUNS_CSV={runs_csv_path.resolve()}")
